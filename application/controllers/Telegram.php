@@ -1,6 +1,5 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-define('WEBHOOK_URL', 'https://path.to.webhook');
 
 class Telegram extends CI_Controller {
 

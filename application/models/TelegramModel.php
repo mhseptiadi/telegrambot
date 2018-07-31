@@ -1,8 +1,6 @@
 <?php
 
 defined('BASEPATH') OR exit('No direct script access allowed');
-define('BOT_TOKEN', 'xxxx');
-define('API_URL', 'https://api.telegram.org/bot'.BOT_TOKEN.'/');
 
 class TelegramModel extends CI_Model {
 

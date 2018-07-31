@@ -8,16 +8,17 @@ class Telegram extends CI_Controller {
 		echo "telegram bot";
 	}
 
-	public function webhook(){
+	public function webhook($reg=""){
 
 		$this->load->model('TelegramModel','tg');
 
 // 		var_dump($this->tg->apiRequest('getWebhookInfo',[]));
 // 		exit;
 
-		if (php_sapi_name() == 'cli') {
+		if ($reg() == 'reg') {
 			// if run from console, set or delete webhook
-			$this->tg->apiRequest('setWebhook', array('url' => isset($argv[1]) && $argv[1] == 'delete' ? '' : WEBHOOK_URL));
+			$res = $this->tg->apiRequest('setWebhook', array('url' => isset($argv[1]) && $argv[1] == 'delete' ? '' : WEBHOOK_URL));
+			var_dump($res);
 			exit;
 		}
 

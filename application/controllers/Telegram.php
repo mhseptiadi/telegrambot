@@ -15,7 +15,7 @@ class Telegram extends CI_Controller {
 // 		var_dump($this->tg->apiRequest('getWebhookInfo',[]));
 // 		exit;
 
-		if ($reg() == 'reg') {
+		if ($reg == 'reg') {
 			// if run from console, set or delete webhook
 			$res = $this->tg->apiRequest('setWebhook', array('url' => isset($argv[1]) && $argv[1] == 'delete' ? '' : WEBHOOK_URL));
 			var_dump($res);

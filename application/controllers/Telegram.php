@@ -37,7 +37,6 @@ class Telegram extends CI_Controller {
 	}
 
 	public function sendMessage($BOT_TOKEN="",$message="",$user_id=""){
-		$BOT_TOKEN = urldecode($BOT_TOKEN);
 		if($BOT_TOKEN!=BOT_TOKEN){
 			echo json_encode(["error"=>"wrong token number"]);
 			exit;

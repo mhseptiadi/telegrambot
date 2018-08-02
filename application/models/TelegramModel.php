@@ -191,6 +191,12 @@ class TelegramModel extends CI_Model {
                     $this->apiRequest("sendMessage", $sendMessage);
                     $this->saveBotMessage($message_id,$sendMessage);
                     $this->updateUserStatus($user_id,"registration_reject","registration");
+                } else if (strpos($text, "08") === 0) {
+                    $this->updateUserPhone($user_id,$text);
+                    $sendMessage = array('chat_id' => $chat_id, "text" => 'Terima kasih! Saya akan menghubungi Anda lagi besok.', 'reply_markup' => array('hide_keyboard' => true));
+                    $this->apiRequest("sendMessage", $sendMessage);
+                    $this->saveBotMessage($message_id,$sendMessage);
+                    $this->updateUserStatus($user_id,"registration_done","survey_one");
                 } else if (strpos($text, "/stop") === 0) {
                     // stop now
                 } else {
@@ -309,6 +315,10 @@ class TelegramModel extends CI_Model {
         $language_code = isset($message['from']['language_code'])?$message['from']['language_code']:"";
         $this->db->query("INSERT INTO users (user_id,is_bot,first_name,last_name,username,language_code) VALUES($user_id,$is_bot,'$first_name','$last_name','$username','$language_code')");
         $this->db->query("INSERT INTO status (user_id,status) VALUES ($user_id,'registration')");
+    }
+
+    function updateUserPhone($user_id,$phone){
+        $this->db->query("UPDATE users SET contact='$phone' WHERE user_id=$user_id");
     }
 
     function updateUser($contact){

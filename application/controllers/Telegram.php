@@ -36,21 +36,33 @@ class Telegram extends CI_Controller {
 		}
 	}
 
-	public function sendMessage($chat_id="",$text=""){
-	    if($chat_id==""){
-	        echo json_encode(["error","chat id cannot be empty"]);
-	        exit;
-	    }
-	    if($text==""){
-	        echo json_encode(["error","text cannot be empty"]);
-	        exit;
-	    }
-	    $text = urldecode($text);
-	    $this->load->model('TelegramModel','tg');
-	    $message_id = time();
-	    $sendMessage = array('chat_id' => $chat_id, "text" => $text, 'reply_markup' => array(
-                    'hide_keyboard' => true));
-        $this->tg->apiRequest("sendMessage", $sendMessage);
-        $this->tg->saveBotMessage($message_id,$sendMessage);
+	public function sendMessage(){
+		if($_POST){
+			$BOT_TOKEN = $this->input->post('BOT_TOKEN');
+			if($BOT_TOKEN!=BOT_TOKEN){
+				echo json_encode(["error"=>"wrong token number"]);
+				exit;
+			}
+			$message = $this->input->post('message');
+			$user_id = $this->input->post('user_id');
+
+			if($user_id==""){
+		        echo json_encode(["error","user id cannot be empty"]);
+		        exit;
+		    }
+		    if($message==""){
+		        echo json_encode(["error","message cannot be empty"]);
+		        exit;
+		    }
+		    $message = urldecode($message);
+		    $this->load->model('TelegramModel','tg');
+		    $message_id = time();
+		    $sendMessage = array('chat_id' => $user_id, "text" => $message, 'reply_markup' => array(
+	                    'hide_keyboard' => true));
+	        $this->tg->apiRequest("sendMessage", $sendMessage);
+	        $this->tg->saveBotMessage($message_id,$sendMessage);
+			echo json_encode(["success"=>true]);
+		}
+
 	}
 }

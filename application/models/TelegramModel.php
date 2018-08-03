@@ -199,6 +199,7 @@ class TelegramModel extends CI_Model {
                     $this->updateUserStatus($user_id,"registration_done","survey_one");
                 } else if (strpos($text, "/stop") === 0) {
                     // stop now
+                    $this->saveMessage($message);
                 } else {
                     $sendMessage = array('chat_id' => $chat_id, "reply_to_message_id" => $message_id, "text" => 'Jika ada yang ingin ditanyakan. Silahkan menghubungi staff terkait. Kirim /restart untung mengulang pendaftaran.');
                     $this->apiRequest("sendMessage", $sendMessage);
@@ -207,6 +208,7 @@ class TelegramModel extends CI_Model {
 
             } elseif(isset($message['contact'])) {
                 $this->updateUser($message['contact']);
+                $this->saveMessage($message);
                 $sendMessage = array('chat_id' => $chat_id, "text" => 'Terima kasih! Saya akan menghubungi Anda lagi besok.', 'reply_markup' => array('hide_keyboard' => true));
                 $this->apiRequest("sendMessage", $sendMessage);
                 $this->saveBotMessage($message_id,$sendMessage);
@@ -218,6 +220,11 @@ class TelegramModel extends CI_Model {
             if (isset($message['text'])) {
                 // incoming text message
                 $text = $message['text'];
+                $this->saveMessage($message);
+                $sendMessage = array('chat_id' => $chat_id, "text" => 'Anda sudah terdaftar. Silahkan menunggu instruksi selanjutnya.');
+                $this->apiRequest("sendMessage", $sendMessage);
+                $this->saveBotMessage($message_id,$sendMessage);
+            }else{
                 $this->saveMessage($message);
                 $sendMessage = array('chat_id' => $chat_id, "text" => 'Anda sudah terdaftar. Silahkan menunggu instruksi selanjutnya.');
                 $this->apiRequest("sendMessage", $sendMessage);
@@ -247,6 +254,17 @@ class TelegramModel extends CI_Model {
                     $this->saveBotMessage($message_id,$sendMessage);
                 }
 
+            } else {
+                $this->saveMessage($message);
+                $sendMessage = array('chat_id' => $chat_id, "reply_to_message_id" => $message_id, "text" => 'Jika ada yang ingin ditanyakan. Silahkan menghubungi staff terkait. Kirim /restart untung mengulang pendaftaran.');
+                $this->apiRequest("sendMessage", $sendMessage);
+                $this->saveBotMessage($message_id,$sendMessage);
+            }
+        } elseif($status=="survey_one"){
+            if (isset($message['text'])) {
+                // incoming text message
+                $text = $message['text'];
+                $this->saveMessage($message);
             }
         }
 
@@ -287,7 +305,42 @@ class TelegramModel extends CI_Model {
         $chat_id = $message['chat']['id'];
         $texts = $message['text'];
         $connected_website = isset($message['connected_website'])?$message['connected_website']:"";
-        $this->db->query("INSERT INTO messages (message_id,from_user,dates,chat_id,texts,connected_website) VALUES($message_id,$from_user,'$dates',$chat_id,'$texts','$connected_website')");
+
+        if(isset($message['audio'])){
+            $attachment = json_encode($message['audio']);
+            $attachment_type = "audio";
+        }elseif(isset($message['document'])){
+            $attachment = json_encode($message['document']);
+            $attachment_type = "document";
+        }elseif(isset($message['game'])){
+            $attachment = json_encode($message['game']);
+            $attachment_type = "game";
+        }elseif(isset($message['photo'])){
+            $attachment = json_encode($message['photo']);
+            $attachment_type = "photo";
+        }elseif(isset($message['sticker'])){
+            $attachment = json_encode($message['sticker']);
+            $attachment_type = "sticker";
+        }elseif(isset($message['video'])){
+            $attachment = json_encode($message['video']);
+            $attachment_type = "video";
+        }elseif(isset($message['voice'])){
+            $attachment = json_encode($message['voice']);
+            $attachment_type = "voice";
+        }elseif(isset($message['video_note'])){
+            $attachment = json_encode($message['video_note']);
+            $attachment_type = "video_note";
+        }elseif(isset($message['contact'])){
+            $attachment = json_encode($message['contact']);
+            $attachment_type = "contact";
+        }elseif(isset($message['location'])){
+            $attachment = json_encode($message['location']);
+            $attachment_type = "location";
+        }else{
+            $attachment = "";
+            $attachment_type = "";
+        }
+        $this->db->query("INSERT INTO messages (message_id,from_user,dates,chat_id,texts,attachment,attachment_type,connected_website) VALUES($message_id,$from_user,'$dates',$chat_id,'$texts','$attachment','$attachment_type','$connected_website')");
     }
 
     function registerChat($message){

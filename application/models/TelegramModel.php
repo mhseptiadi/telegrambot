@@ -177,6 +177,7 @@ class TelegramModel extends CI_Model {
                     );
                     $this->apiRequestJson("sendMessage", $sendMessage);
                     $this->saveBotMessage($message_id,$sendMessage);
+                    $this->updateUserStatus($user_id,"registration","");
                 } else if ($text === "Setuju") {
                     $sendMessage = array('chat_id' => $chat_id, "text" => 'Kami membutuhkan nomor kontak anda. Klik tombol kirim kontak untuk melanjutkan.',
                     'reply_markup' => array(

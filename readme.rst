@@ -13,3 +13,10 @@ How to use
 - `Import database schema to your mysql database and setting /application/config/database.php with your mysql username and password`
 - `Deploy the application`
 - `Access https://your.server.path/telegram/webhook/reg to register your webhook with the bot, it will show success message if success`
+
+
+*******************
+Next Step
+*******************
+
+The logic of the bot can be found in /application/models/TelegramModel.php 

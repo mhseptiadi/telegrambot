@@ -182,3 +182,26 @@ ALTER TABLE `users`
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+
+
+CREATE TABLE `question` (
+  `id` int(32) NOT NULL,
+  `message` varchar(256) NOT NULL,
+  `answer` varchar(256) NULL,
+  `trigger` varchar(256) NULL,
+  `prev` int(32) NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `question`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `question`
+  MODIFY `id` int(32) NOT NULL AUTO_INCREMENT;
+
+INSERT INTO `question` (`message`,`trigger`) VALUES ("this is question with no format answer",'/test1');  
+INSERT INTO `question` (`message`) VALUES ("this should be triggered by no format answer");  
+INSERT INTO `question` (`message`,`answer`,`trigger`,`prev`) VALUES ("this is question with format answer",'{"inline_keyboard":[[{"text":"OK","callback_data":"callback1"},{"text":"Not OK","callback_data":"callback2"}]]}','/test2',1);  
+INSERT INTO `question` (`message`,`answer`,`trigger`,`prev`) VALUES ("OK received",'','callback1',3);  
+INSERT INTO `question` (`message`,`answer`,`trigger`,`prev`) VALUES ("Not OK received",'','callback2',3);  

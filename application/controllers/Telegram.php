@@ -5,6 +5,12 @@ class Telegram extends CI_Controller {
 
 	public function index()
 	{
+		$arr = array(
+			'inline_keyboard' => array(array(
+				array('text' => 'OK', 'callback_data' => 'callback1'),
+				array('text' => 'Not OK', 'callback_data' => 'callback2')
+			)));
+		echo json_encode($arr);
 		echo "telegram bot";
 	}
 
@@ -32,6 +38,8 @@ class Telegram extends CI_Controller {
 		}
 
 		if (isset($update["message"])) {
+			$this->tg->processMessage($update);
+		}elseif ($update['callback_query'] != null) {
 			$this->tg->processMessage($update);
 		}
 	}

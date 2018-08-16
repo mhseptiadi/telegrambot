@@ -522,6 +522,6 @@ $config['rewrite_short_tags'] = FALSE;
 */
 $config['proxy_ips'] = '';
 
-define('BOT_TOKEN', 'xxxx');
+define('BOT_TOKEN', '621502946:AAEFxFJlgUW1TOxVB019VIE3levFYFnYWW4');
 define('API_URL', 'https://api.telegram.org/bot'.BOT_TOKEN.'/');
 define('WEBHOOK_URL', 'https://path.to.webhook');

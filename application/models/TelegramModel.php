@@ -120,7 +120,94 @@ class TelegramModel extends CI_Model {
         return $this->exec_curl_request($handle);
     }
 
+    function getQuestion($trigger){
+        return $this->db->query("SELECT * FROM question WHERE `trigger`='$trigger'")->row();
+    }
+
     function processMessage($update) {
+        $this->saveRawUpdate($update);
+        if($this->isUpdateExist($update)){
+            return;
+        }
+        
+        if($update['callback_query'] != null) {
+            $message = $update['callback_query']["message"];
+            $message_id = $message['message_id'];
+            $chat_id = $message['chat']['id'];
+            $user_id = $message['from']['id'];
+            $text = $update['callback_query']['data'];
+        }else{
+            $message = $update["message"];
+            $message_id = $message['message_id'];
+            $chat_id = $message['chat']['id'];
+            $user_id = $message['from']['id'];
+            $text = $message['text'];
+        }
+
+        if(isset($message['entities']) && isset($message['entities']['type'])){
+            //do nothing
+        }elseif (isset($message['text'])) {
+            // incoming text message
+            $this->saveMessage($message);
+
+
+            //dynamic question from db start here
+            $question = $this->getQuestion($text);
+
+            if($question != null){
+
+                $sendText = $question->message;
+                $sendMessage = array('chat_id' => $chat_id, "text" =>$sendText);
+                if($question->answer != null && $question->answer != ""){
+                    $sendMessage["reply_markup"] = json_decode($question->answer,true);
+                }
+                $this->apiRequestJson("sendMessage", $sendMessage);
+                $this->saveBotMessage($message_id,$sendMessage);
+
+                return;
+            }
+
+
+            if (strpos($text, "/q1") === 0) {
+                $sendText = "Test Q1";
+                $sendMessage = array('chat_id' => $chat_id, "text" =>$sendText, 'reply_markup' => array(
+                    'inline_keyboard' => array(array(
+                        array('text' => 'OK', 'callback_data' => 'callback1'),
+                        array('text' => 'Not OK', 'callback_data' => 'callback2')
+                    )))
+                );
+                $this->apiRequestJson("sendMessage", $sendMessage);
+                $this->saveBotMessage($message_id,$sendMessage);
+                $this->updateUserStatus($user_id,"registration","");
+            }elseif (strpos($text, "/q2") === 0) {
+                $sendText = "Test Q2";
+                $sendMessage = array('chat_id' => $chat_id, "text" =>$sendText, 'reply_markup' => array(
+                    'keyboard' => array(array(array('text' => '/a1 Kuuy', 'callback_data' => 'callback_data1'))),
+                    'one_time_keyboard' => true,
+                    'resize_keyboard' => true)
+                );
+                $this->apiRequestJson("sendMessage", $sendMessage);
+                $this->saveBotMessage($message_id,$sendMessage);
+                $this->updateUserStatus($user_id,"registration","");
+            }elseif (strpos($text, "/q3") === 0) {
+                $sendText = "Test Q3";
+                $sendMessage = array('chat_id' => $chat_id, "text" =>$sendText, 'reply_markup' => array(
+                    'force_reply' => true)
+                );
+                $this->apiRequestJson("sendMessage", $sendMessage);
+                $this->saveBotMessage($message_id,$sendMessage);
+                $this->updateUserStatus($user_id,"registration","");
+            }else{
+                $sendMessage = array('chat_id' => $chat_id, "text" => $question);
+                $this->apiRequest("sendMessage", $sendMessage);
+                $this->saveBotMessage($message_id,$sendMessage);
+            }
+
+            return;
+        }
+    }
+
+    function processMessageOld($update) {
         $this->saveRawUpdate($update);
         if($this->isUpdateExist($update)){
             return;
@@ -268,10 +355,6 @@ class TelegramModel extends CI_Model {
                 $this->saveMessage($message);
             }
         }
-
-
-
-
     }
 
     function saveRawUpdate($update){

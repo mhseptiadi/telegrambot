@@ -120,8 +120,38 @@ class TelegramModel extends CI_Model {
         return $this->exec_curl_request($handle);
     }
 
-    function getQuestion($trigger){
-        return $this->db->query("SELECT * FROM question WHERE `trigger`='$trigger'")->row();
+    function updateUserPrev($user_id,$state){
+        $this->db->query("UPDATE status SET prev='$state' WHERE user_id=$user_id");
+    }
+    function updateUserNext($user_id,$state){
+        $this->db->query("UPDATE status SET next='$state' WHERE user_id=$user_id");
+    }
+
+    function getQuestion($trigger,$user_id){
+        $status = $this->db->query("SELECT `prev`, `next` FROM `status` WHERE `user_id`='$user_id'")->row();
+        
+        $filter = "";
+        if ($status->next != '')
+            $filter .= " and `id` in ($status->next)";
+        if ($status->prev != ''){
+            $filter .= " and `prev` = '$status->prev'";
+        }else{
+            $filter .= " and `prev` = ''";
+        }
+        
+        
+        $query = "SELECT question.id as id, question.prev as prev, question.next as next, question.message as message, question.answer as answer FROM question WHERE `trigger`='$trigger' $filter";
+        $return = $this->db->query($query)->row();
+        if ($return != null) {
+            return $return;
+        }
+
+        //next and trigger is not working, try to use prev and no trigger 
+        $query = "select question.id as id, question.prev as prev, question.next as next, question.message as message, question.answer as answer from question join status on question.prev = status.prev where status.user_id = '$user_id' and question.trigger = ''";
+        $return = $this->db->query($query)->row();
+        if ($return != null) {
+            return $return;
+        }
     }
 
     function processMessage($update) {
@@ -134,7 +164,7 @@ class TelegramModel extends CI_Model {
             $message = $update['callback_query']["message"];
             $message_id = $message['message_id'];
             $chat_id = $message['chat']['id'];
-            $user_id = $message['from']['id'];
+            $user_id = $message['chat']['id'];//pake yg chat
             $text = $update['callback_query']['data'];
         }else{
             $message = $update["message"];
@@ -152,10 +182,14 @@ class TelegramModel extends CI_Model {
 
 
             //dynamic question from db start here
-            $question = $this->getQuestion($text);
-
-            if($question != null){
-
+            $question = $this->getQuestion($text,$user_id);
+            if (strpos($text, "/reset") === 0) {
+                $this->updateUserPrev($user_id,'');
+                $this->updateUserNext($user_id,'');
+                $sendMessage = array('chat_id' => $chat_id, "text" => "Reset success.");
+                $this->apiRequest("sendMessage", $sendMessage);
+                $this->saveBotMessage($message_id,$sendMessage);
+            }elseif($question != null){
                 $sendText = $question->message;
                 $sendMessage = array('chat_id' => $chat_id, "text" =>$sendText);
                 if($question->answer != null && $question->answer != ""){
@@ -164,44 +198,54 @@ class TelegramModel extends CI_Model {
                 $this->apiRequestJson("sendMessage", $sendMessage);
                 $this->saveBotMessage($message_id,$sendMessage);
 
-                return;
-            }
-
-
-            if (strpos($text, "/q1") === 0) {
-                $sendText = "Test Q1";
-                $sendMessage = array('chat_id' => $chat_id, "text" =>$sendText, 'reply_markup' => array(
-                    'inline_keyboard' => array(array(
-                        array('text' => 'OK', 'callback_data' => 'callback1'),
-                        array('text' => 'Not OK', 'callback_data' => 'callback2')
-                    )))
-                );
-                $this->apiRequestJson("sendMessage", $sendMessage);
-                $this->saveBotMessage($message_id,$sendMessage);
-                $this->updateUserStatus($user_id,"registration","");
-            }elseif (strpos($text, "/q2") === 0) {
-                $sendText = "Test Q2";
-                $sendMessage = array('chat_id' => $chat_id, "text" =>$sendText, 'reply_markup' => array(
-                    'keyboard' => array(array(array('text' => '/a1 Kuuy', 'callback_data' => 'callback_data1'))),
-                    'one_time_keyboard' => true,
-                    'resize_keyboard' => true)
-                );
-                $this->apiRequestJson("sendMessage", $sendMessage);
-                $this->saveBotMessage($message_id,$sendMessage);
-                $this->updateUserStatus($user_id,"registration","");
-            }elseif (strpos($text, "/q3") === 0) {
-                $sendText = "Test Q3";
-                $sendMessage = array('chat_id' => $chat_id, "text" =>$sendText, 'reply_markup' => array(
-                    'force_reply' => true)
-                );
-                $this->apiRequestJson("sendMessage", $sendMessage);
-                $this->saveBotMessage($message_id,$sendMessage);
-                $this->updateUserStatus($user_id,"registration","");
+                $this->updateUserPrev($user_id,$question->id);// use id not prev, because it is the current state of user after finishing the question
+                $this->updateUserNext($user_id,$question->next);
+                if($question->next == '')
+                $this->updateUserPrev($user_id,'');//reset prev if question next empty (last question no need to track previous one)
+                // return;
             }else{
-                $sendMessage = array('chat_id' => $chat_id, "text" => $question);
+                $sendMessage = array('chat_id' => $chat_id, "text" => "There is invalid action. Please continue with the proper answer or try to /reset");
                 $this->apiRequest("sendMessage", $sendMessage);
                 $this->saveBotMessage($message_id,$sendMessage);
             }
+
+            return;
+
+            //test purpose
+            $sendMessage = array('chat_id' => $chat_id, "text" => $question);
+            $this->apiRequest("sendMessage", $sendMessage);
+            $this->saveBotMessage($message_id,$sendMessage);
+
+            // if (strpos($text, "/q1") === 0) {
+            //     $sendText = "Test Q1";
+            //     $sendMessage = array('chat_id' => $chat_id, "text" =>$sendText, 'reply_markup' => array(
+            //         'inline_keyboard' => array(array(
+            //             array('text' => 'OK', 'callback_data' => 'callback1'),
+            //             array('text' => 'Not OK', 'callback_data' => 'callback2')
+            //         )))
+            //     );
+            //     $this->apiRequestJson("sendMessage", $sendMessage);
+            //     $this->saveBotMessage($message_id,$sendMessage);
+            //     $this->updateUserStatus($user_id,"registration","");
+            // }elseif (strpos($text, "/q2") === 0) {
+            //     $sendText = "Test Q2";
+            //     $sendMessage = array('chat_id' => $chat_id, "text" =>$sendText, 'reply_markup' => array(
+            //         'keyboard' => array(array(array('text' => '/a1 Kuuy', 'callback_data' => 'callback_data1'))),
+            //         'one_time_keyboard' => true,
+            //         'resize_keyboard' => true)
+            //     );
+            //     $this->apiRequestJson("sendMessage", $sendMessage);
+            //     $this->saveBotMessage($message_id,$sendMessage);
+            //     $this->updateUserStatus($user_id,"registration","");
+            // }elseif (strpos($text, "/q3") === 0) {
+            //     $sendText = "Test Q3";
+            //     $sendMessage = array('chat_id' => $chat_id, "text" =>$sendText, 'reply_markup' => array(
+            //         'force_reply' => true)
+            //     );
+            //     $this->apiRequestJson("sendMessage", $sendMessage);
+            //     $this->saveBotMessage($message_id,$sendMessage);
+            //     $this->updateUserStatus($user_id,"registration","");
+            // }
 
             return;
         }

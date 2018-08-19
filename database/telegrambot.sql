@@ -78,7 +78,8 @@ CREATE TABLE `status` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `status` varchar(32) NOT NULL,
-  `next` varchar(32) NOT NULL
+  `next` varchar(32) NOT NULL,
+  `state` int(32) DEFAULT 0
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -189,9 +190,9 @@ ALTER TABLE `users`
 CREATE TABLE `question` (
   `id` int(32) NOT NULL,
   `message` varchar(256) NOT NULL,
-  `answer` varchar(256) NULL,
-  `trigger` varchar(256) NULL,
-  `prev` int(32) NULL
+  `answer` varchar(256) DEFAULT '',
+  `trigger` varchar(256) DEFAULT '',
+  `prev` int(32) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE `question`
@@ -201,7 +202,7 @@ ALTER TABLE `question`
   MODIFY `id` int(32) NOT NULL AUTO_INCREMENT;
 
 INSERT INTO `question` (`message`,`trigger`) VALUES ("this is question with no format answer",'/test1');  
-INSERT INTO `question` (`message`) VALUES ("this should be triggered by no format answer");  
-INSERT INTO `question` (`message`,`answer`,`trigger`,`prev`) VALUES ("this is question with format answer",'{"inline_keyboard":[[{"text":"OK","callback_data":"callback1"},{"text":"Not OK","callback_data":"callback2"}]]}','/test2',1);  
+INSERT INTO `question` (`message`,`prev`) VALUES ("this should be triggered by no format answer",1);  
+INSERT INTO `question` (`message`,`answer`,`trigger`) VALUES ("this is question with format answer",'{"inline_keyboard":[[{"text":"OK","callback_data":"callback1"},{"text":"Not OK","callback_data":"callback2"}]]}','/test2');  
 INSERT INTO `question` (`message`,`answer`,`trigger`,`prev`) VALUES ("OK received",'','callback1',3);  
 INSERT INTO `question` (`message`,`answer`,`trigger`,`prev`) VALUES ("Not OK received",'','callback2',3);  

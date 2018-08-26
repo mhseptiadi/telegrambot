@@ -1,0 +1,59 @@
+[
+    {
+        "type":"biodata",
+        "key":"1",
+        "trigger":"/biodata",
+        "message":"siapakah nama anda?",
+        "answer":null,
+        "prev":""
+    },
+    {
+        "type":"biodata",
+        "key":"2",
+        "trigger":null,
+        "message":"jenis kelamin anda?",
+        "answer":{
+            "male":"pria",
+            "female":"wanita"
+        },
+        "prev":"1"
+    },
+    {
+        "type":"biodata",
+        "key":"3",
+        "trigger":"female",
+        "message":"apakah anda mengandung?",
+        "answer":{
+            "ya":"ya",
+            "tidak":"tidak"
+        },
+        "prev":"2"
+    },
+    {
+        "type":"biodata",
+        "key":"4",
+        "trigger":"",
+        "message":"apakah anda sudah menikah?",
+        "answer":{
+            "ya":"ya",
+            "tidak":"tidak"
+        },
+        "prev":"2,3"
+    },
+    {
+        "type":"biodata",
+        "key":"5",
+        "trigger":null,
+        "message":"berapakah umur anda?",
+        "answer":null,
+        "prev":"4"
+    },
+    {
+        "type":"biodata",
+        "key":"6",
+        "trigger":null,
+        "message":"berapakah jumlah anggota keluarga anda?",
+        "answer":null,
+        "prev":"5"
+    }
+]

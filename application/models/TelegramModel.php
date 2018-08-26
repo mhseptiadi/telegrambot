@@ -126,6 +126,13 @@ class TelegramModel extends CI_Model {
     function updateUserNext($user_id,$state){
         $this->db->query("UPDATE status SET next='$state' WHERE user_id=$user_id");
     }
+    function saveResponse($prev,$user_id,$response){
+        $query = "REPLACE INTO response
+            (questionId,userId,response)
+        VALUES
+            ($prev,$user_id,'$response');";
+        $this->db->query($query);
+    }
 
     function getQuestion($trigger,$user_id){
         $status = $this->db->query("SELECT `prev`, `next` FROM `status` WHERE `user_id`='$user_id'")->row();
@@ -200,8 +207,14 @@ class TelegramModel extends CI_Model {
 
                 $this->updateUserPrev($user_id,$question->id);// use id not prev, because it is the current state of user after finishing the question
                 $this->updateUserNext($user_id,$question->next);
-                if($question->next == '')
-                $this->updateUserPrev($user_id,'');//reset prev if question next empty (last question no need to track previous one)
+                
+                if($question->next == ''){
+                    $this->updateUserPrev($user_id,'');//reset prev if question next empty (last question no need to track previous one)
+                }
+
+                if($question->prev != ''){
+                    $this->saveResponse($question->prev,$user_id,$text);//save answer if prev (id last question) exist;
+                }
                 // return;
             }else{
                 $sendMessage = array('chat_id' => $chat_id, "text" => "There is invalid action. Please continue with the proper answer or try to /reset");
@@ -209,9 +222,12 @@ class TelegramModel extends CI_Model {
                 $this->saveBotMessage($message_id,$sendMessage);
             }
 
-            return;
+            // return;
 
             //test purpose
+            $sendMessage = array('chat_id' => $chat_id, "text" => $message);
+            $this->apiRequest("sendMessage", $sendMessage);
+            $this->saveBotMessage($message_id,$sendMessage);
             $sendMessage = array('chat_id' => $chat_id, "text" => $question);
             $this->apiRequest("sendMessage", $sendMessage);
             $this->saveBotMessage($message_id,$sendMessage);

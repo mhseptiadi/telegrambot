@@ -57,3 +57,19 @@
         "prev":"5"
     }
 ]
+
+---------------------
+
+[
+    {
+        "type":"register",
+        "key":"1",
+        "trigger":"/register",
+        "message":"Selamat datang di SID-Indonesia!
+                    Saya akan bertanya kepada Anda secara berkala tentang keadaan dan kesejahteraan Anda sehari-hari.
+                    Sebelum melanjutkan, silahkan kunjungi lembar persetujuan di laman berikut.
+                    https://www.facebook.com/notes/beats/lembar-persetujuan/2017675754940751",
+        "answer":["Setuju", "Tidak Setuju"],
+        "prev":""
+    }
+]

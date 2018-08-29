@@ -106,18 +106,31 @@ class QuestionModel extends CI_Model {
                 if (!in_array($key, $allowedFields)) {
                     unset($data[$key]);
                 }else{
-                    array_push($fields,"question.".$key);
-                    array_push($binds,'?');
-                    if($key == 'answer' && $val != ''){
-                        $choices = [];
-                        foreach($val as $key2 => $val2){
-                            $choice = (object) array('text' => $val2,'callback_data' => $key2);
-                            array_push($choices,$choice);
+                    if($val != null){
+                        array_push($fields,"question.".$key);
+                        array_push($binds,'?');
+                        if($key == 'answer' && $val != ''){
+                            if(is_object($val)){
+                                $choices = [];
+                                foreach($val as $key2 => $val2){
+                                    $choice = (object) array('text' => $val2,'callback_data' => $key2);
+                                    array_push($choices,$choice);
+                                }
+                                $keyboard = (object) array('inline_keyboard' => [$choices]);
+                                $val = json_encode($keyboard);
+                            }elseif(is_array($val)){
+                                $choices = [];
+                                foreach($val as $val2){
+                                    array_push($choices,$val2);
+                                }
+                                $keyboard = (object) array('keyboard' => [$choices],
+                                'one_time_keyboard' => true,
+                                'resize_keyboard' => true);
+                                $val = json_encode($keyboard);
+                            }
                         }
-                        $keyboard = (object) array('inline_keyboard' => [$choices]);
-                        $val = json_encode($keyboard);
+                        array_push($contents,$val);
                     }
-                    array_push($contents,$val);
                 }
             }
             

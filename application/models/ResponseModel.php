@@ -9,11 +9,20 @@ class ResponseModel extends CI_Model {
         $this->db = $this->load->database('telegram', TRUE);
     }
 
-    function getResponse($type = ""){
+    function getResponse($type = "",$username = ""){
+
+        $filter = "where 1 ";
+        if ($type != ""){
+            $filter .= " and response.questionType = '$type'";
+        }
+        if ($username != ""){
+            $filter .= " and users.username = '$username'";
+        }
+
         $query = "SELECT users.username, users.first_name, users.last_name, question.message, response.response 
         FROM response 
             JOIN question ON question.key = response.questionKey AND question.type = response.questionType
-            LEFT JOIN users ON users.user_id = response.userId;";
+            LEFT JOIN users ON users.user_id = response.userId $filter ;";
 
         $data = [];
         $exec = $this->db->query($query);
@@ -27,5 +36,4 @@ class ResponseModel extends CI_Model {
         }
         return $data;
     }
-
 }

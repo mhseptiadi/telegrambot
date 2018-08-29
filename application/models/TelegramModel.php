@@ -166,7 +166,6 @@ class TelegramModel extends CI_Model {
         if ($return != null) {
             return $return;
         }
-
     }
 
     function processMessage($update) {
@@ -223,7 +222,7 @@ class TelegramModel extends CI_Model {
                     $userStatus = $this->getUserStatusComplete($user_id);
                     $this->saveResponse($userStatus->prev,$userStatus->questiontype,$user_id,$text);//save answer if prev (id last question) exist;
                 }
-                
+
                 $this->updateUserPrev($user_id,$question->qkey);// use id not prev, because it is the current state of user after finishing the question
                 $this->updateUserNext($user_id,$question->next);
                 $this->updateUserQuestionType($user_id,$question->type);
@@ -250,6 +249,17 @@ class TelegramModel extends CI_Model {
             return;
 
             //test purpose
+            $sendMessage = array('chat_id' => $chat_id, "text" => $message);
+            $this->apiRequest("sendMessage", $sendMessage);
+            $this->saveBotMessage($message_id,$sendMessage);
+            $sendMessage = array('chat_id' => $chat_id, "text" => $question);
+            $this->apiRequest("sendMessage", $sendMessage);
+            $this->saveBotMessage($message_id,$sendMessage);
+
+
+            return;
+
+            //debug purpose
             $sendMessage = array('chat_id' => $chat_id, "text" => $message);
             $this->apiRequest("sendMessage", $sendMessage);
             $this->saveBotMessage($message_id,$sendMessage);

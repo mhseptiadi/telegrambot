@@ -40,6 +40,7 @@ CREATE TABLE `chats` (
 LOCK TABLES `chats` WRITE;
 /*!40000 ALTER TABLE `chats` DISABLE KEYS */;
 INSERT INTO `chats` VALUES (510182980,'private','','mhseptiadi','Muhammad','Septiadi'),(677588186,'private','','mh_septiadi','Muhammad','Septiadi');
+
 /*!40000 ALTER TABLE `chats` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -92,6 +93,7 @@ CREATE TABLE `question` (
   `next` varchar(45) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=215 DEFAULT CHARSET=utf8;
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -101,6 +103,7 @@ CREATE TABLE `question` (
 LOCK TABLES `question` WRITE;
 /*!40000 ALTER TABLE `question` DISABLE KEYS */;
 INSERT INTO `question` VALUES (196,'biodata','1','siapakah nama anda?','','','/biodata','','2'),(197,'biodata','2','jenis kelamin anda?','{\"inline_keyboard\":[[{\"text\":\"pria\",\"callback_data\":\"male\"},{\"text\":\"wanita\",\"callback_data\":\"female\"}]]}','','','1','3,4,3,4'),(198,'biodata','3','apakah anda mengandung?','{\"inline_keyboard\":[[{\"text\":\"ya\",\"callback_data\":\"ya\"},{\"text\":\"tidak\",\"callback_data\":\"tidak\"}]]}','','female','2','4,4'),(199,'biodata','4','apakah anda sudah menikah?','{\"inline_keyboard\":[[{\"text\":\"ya\",\"callback_data\":\"ya\"},{\"text\":\"tidak\",\"callback_data\":\"tidak\"}]]}','','','2,3','5,5'),(200,'biodata','5','berapakah umur anda?','','','','4','6,6'),(201,'biodata','6','berapakah jumlah anggota keluarga anda?','','','','5',''),(214,'register','1','Selamat datang di SID-Indonesia!\n                    Saya akan bertanya kepada Anda secara berkala tentang keadaan dan kesejahteraan Anda sehari-hari.\n                    Sebelum melanjutkan, silahkan kunjungi lembar persetujuan di laman berikut.\n         ','{\"keyboard\":[[\"Setuju\",\"Tidak Setuju\"]],\"one_time_keyboard\":true,\"resize_keyboard\":true}','','/register','','');
+
 /*!40000 ALTER TABLE `question` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -145,6 +148,7 @@ CREATE TABLE `response` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `index2` (`userId`,`questionKey`)
 ) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8;
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -154,6 +158,7 @@ CREATE TABLE `response` (
 LOCK TABLES `response` WRITE;
 /*!40000 ALTER TABLE `response` DISABLE KEYS */;
 INSERT INTO `response` VALUES (48,'1','biodata',510182980,'wawan'),(49,'2','biodata',510182980,'female'),(50,'3','biodata',510182980,'tidak'),(51,'4','biodata',510182980,'ya'),(52,'5','biodata',510182980,'21'),(53,'6','biodata',510182980,'2'),(54,'1','biodata',677588186,'tia'),(55,'2','biodata',677588186,'male'),(56,'4','biodata',677588186,'ya'),(57,'5','biodata',677588186,'34'),(58,'6','biodata',677588186,'4');
+
 /*!40000 ALTER TABLE `response` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -173,6 +178,7 @@ CREATE TABLE `status` (
   `questiontype` varchar(45) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=49 DEFAULT CHARSET=latin1;
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -182,6 +188,7 @@ CREATE TABLE `status` (
 LOCK TABLES `status` WRITE;
 /*!40000 ALTER TABLE `status` DISABLE KEYS */;
 INSERT INTO `status` VALUES (46,510182980,'registration_done','','',''),(48,677588186,'registration_done','','','');
+
 /*!40000 ALTER TABLE `status` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -227,6 +234,7 @@ CREATE TABLE `users` (
   `contact` varchar(32) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8;
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -236,6 +244,7 @@ CREATE TABLE `users` (
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` VALUES (46,510182980,0,'Muhammad','Septiadi','mhseptiadi','en-US','6287889217654'),(48,677588186,0,'Muhammad','Septiadi','mh_septiadi','en-ID','6281281138003');
+
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -249,3 +258,4 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2018-08-29  8:02:38
+
